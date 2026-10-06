@@ -1,6 +1,6 @@
 {
   "name": "homebridge-lindy-classic8",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Homebridge plugin for the Lindy IPower Switch Classic 8 (32657) with native PDU power cycling and a custom settings UI.",
   "license": "MIT",
   "main": "index.js",

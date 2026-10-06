@@ -6,6 +6,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+## [0.1.9] - 2026-10-06
+
 - Catch unexpected asynchronous startup failures and log them instead of allowing an unhandled promise rejection.
 - Correct the settings description for per-outlet overrides so it matches the plugin's actual behaviour.
 - Add regression coverage for unconfigured and failed startup paths.
