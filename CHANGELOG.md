@@ -6,6 +6,8 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Update README installation and release-status wording following the public v0.1.9 npm release.
+
 ## [0.1.9] - 2026-10-06
 
 - Catch unexpected asynchronous startup failures and log them instead of allowing an unhandled promise rejection.

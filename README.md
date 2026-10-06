@@ -4,7 +4,7 @@ Homebridge plugin for the **Lindy IPower Switch Classic 8 (Lindy 32657)**.
 
 It exposes safe, momentary HomeKit power-cycle controls for each of the PDU's eight outlets and can also perform an autonomous, staggered **Power Cycle Everything** sequence.
 
-> **Release status:** the plugin is hardware-validated on a Lindy 32657. Version `0.1.9` is the first version prepared for public npm distribution. Versions `0.1.0` through `0.1.8` were pre-public development builds; their source snapshots are preserved in the Git history and tags, with local network example values sanitised for public publication.
+> **Release status:** the plugin is hardware-validated on a Lindy 32657. Version `0.1.9` is the first public npm release. Versions `0.1.0` through `0.1.8` were pre-public development builds; their source snapshots are preserved in the Git history and tags, with local network example values sanitised for public publication.
 
 ## Features
 
@@ -73,13 +73,13 @@ The sequence continues on the PDU even if Homebridge, Wi-Fi, a network switch, o
 
 ### Homebridge UI / npm
 
-Once the package is published to npm, install **homebridge-lindy-classic8** through the Homebridge UI or with npm:
+Install **homebridge-lindy-classic8** through the Homebridge UI or with npm:
 
 ```bash
 npm install -g homebridge-lindy-classic8
 ```
 
-Until the npm release is available, clone the repository for development/testing:
+For development/testing, clone the repository:
 
 ```bash
 git clone https://github.com/ikthezeus/homebridge-lindy-classic8.git
