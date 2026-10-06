@@ -1,52 +1,52 @@
 {
-    "name":  "homebridge-lindy-classic8",
-    "version":  "0.1.8",
-    "description":  "Homebridge plugin for the Lindy IPower Switch Classic 8 (32657) with native PDU power cycling and a custom settings UI.",
-    "license":  "MIT",
-    "main":  "index.js",
-    "keywords":  [
-                     "homebridge-plugin",
-                     "supports-hap",
-                     "lindy",
-                     "ipower",
-                     "classic8",
-                     "pdu",
-                     "snmp"
-                 ],
-    "engines":  {
-                    "node":  "^22.12.0 || ^24.0.0 || ^26.0.0",
-                    "homebridge":  "^1.8.0 || ^2.0.0"
-                },
-    "dependencies":  {
-                         "net-snmp":  "^3.29.1"
-                     },
-    "scripts":  {
-                    "test":  "node --test",
-                    "check":  "node --check index.js \u0026\u0026 node --check lib/settings.js \u0026\u0026 node --check lib/naming.js \u0026\u0026 node --check lib/protocol.js \u0026\u0026 node --check lib/lindy-client.js \u0026\u0026 node --check lib/platform.js \u0026\u0026 node --check lib/accessory.js \u0026\u0026 node --check tools/snmp-read.js"
-                },
-    "files":  [
-                  "index.js",
-                  "lib",
-                  "tools",
-                  "config.schema.json",
-                  "README.md",
-                  "LICENSE",
-                  "homebridge-ui",
-                  "CHANGELOG.md"
-              ],
-    "homebridge":  {
-                       "displayName":  "Lindy Classic8",
-                       "platformName":  "LindyClassic8"
-                   },
-    "author":  {
-                   "name":  "ikthezeus"
-               },
-    "repository":  {
-                       "type":  "git",
-                       "url":  "git+https://gitlab.com/homebridge4/homebridge-lindy-classic8.git"
-                   },
-    "homepage":  "https://gitlab.com/homebridge4/homebridge-lindy-classic8#readme",
-    "bugs":  {
-                 "url":  "https://gitlab.com/homebridge4/homebridge-lindy-classic8/-/issues"
-             }
+  "name": "homebridge-lindy-classic8",
+  "version": "0.1.8",
+  "description": "Homebridge plugin for the Lindy IPower Switch Classic 8 (32657) with native PDU power cycling and a custom settings UI.",
+  "license": "MIT",
+  "main": "index.js",
+  "keywords": [
+    "homebridge-plugin",
+    "supports-hap",
+    "lindy",
+    "ipower",
+    "classic8",
+    "pdu",
+    "snmp"
+  ],
+  "engines": {
+    "node": "^22.12.0 || ^24.0.0 || ^26.0.0",
+    "homebridge": "^1.8.0 || ^2.0.0"
+  },
+  "dependencies": {
+    "net-snmp": "^3.29.1"
+  },
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check index.js && node --check lib/settings.js && node --check lib/naming.js && node --check lib/protocol.js && node --check lib/lindy-client.js && node --check lib/platform.js && node --check lib/accessory.js && node --check tools/snmp-read.js"
+  },
+  "files": [
+    "index.js",
+    "lib",
+    "tools",
+    "config.schema.json",
+    "README.md",
+    "LICENSE",
+    "homebridge-ui",
+    "CHANGELOG.md"
+  ],
+  "homebridge": {
+    "displayName": "Lindy Classic8",
+    "platformName": "LindyClassic8"
+  },
+  "author": {
+    "name": "ikthezeus"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/homebridge4/homebridge-lindy-classic8.git"
+  },
+  "homepage": "https://gitlab.com/homebridge4/homebridge-lindy-classic8#readme",
+  "bugs": {
+    "url": "https://gitlab.com/homebridge4/homebridge-lindy-classic8/-/issues"
+  }
 }
