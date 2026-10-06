@@ -2,79 +2,54 @@
 
 Homebridge plugin for the **Lindy IPower Switch Classic 8 (Lindy 32657)**.
 
-It talks directly to the Classic8 over **SNMPv1** and can:
+## What it does
 
-- read the eight outlet names from the PDU automatically;
-- expose a momentary **Power Cycle** switch for each selected outlet;
-- optionally expose normal persistent on/off switches;
-- read the actual outlet states from the PDU;
-- use a configurable off-time for power cycles;
-- override individual outlet names and cycle delays in Homebridge;
-- recover if the PDU is offline when Homebridge starts.
+- Reads the eight outlet names from the Classic8 automatically.
+- Exposes a momentary **Power Cycle <outlet name>** switch for each selected outlet.
+- Uses the Classic8's own native `OFF/ON` web command, so a reboot can finish even if the selected outlet powers Homebridge, the network switch, Wi-Fi or the router/firewall.
+- Defaults individual cycles to a **1 second** OFF/ON delay.
+- Optionally exposes ordinary persistent on/off switches.
+- Adds **Power Cycle Everything**.
+- Preserves the PDU's normal ON/OFF delay table and restores it after temporary cycle-specific changes.
+- Persists a recovery journal under the Homebridge storage directory so delay restoration survives Homebridge itself being power-cycled.
 
-## HomeKit behaviour
+## Power Cycle Everything
 
-The safe default is **power-cycle-only**.
+With the default `allCycleStepSeconds: 1`, the plugin temporarily configures:
 
-If the Classic8 has an outlet named `Router`, HomeKit gets a switch called:
+- OFF delays: `1,2,3,4,5,6,7,8`
+- ON delays: `8,8,8,8,8,8,8,8`
 
-`Power Cycle Router`
-
-Turning that switch on performs:
-
-1. Router outlet OFF
-2. wait 5 seconds (configurable)
-3. Router outlet ON
-4. `Power Cycle Router` returns to OFF automatically
-
-This makes Siri usage straightforward, for example:
-
-> Turn on Power Cycle Router
-
-Permanent outlet controls are disabled by default so a critical device is less likely to be accidentally left switched off. They can be enabled with `exposeOutletSwitches`.
-
-## SNMP details
-
-The Classic8 uses the DigiPower enterprise tree (`1.3.6.1.4.1.17420`). This plugin uses:
-
-- outlet states: `1.3.6.1.4.1.17420.1.2.9.1.13.0`
-- outlet names: `1.3.6.1.4.1.17420.1.2.9.1.14.<1-8>.0`
-
-The plugin uses a serialised read-modify-write operation: it reads the current eight-outlet state, changes only the requested outlet, writes the complete state string back, and verifies the result. This matches the control method validated on a Lindy 32657.
-
-## Before installing
-
-In the Classic8 web interface, check **Configuration -> SNMP** and note the read/write community names.
-
-The web login (`snmp` / `1234` on factory defaults) is **not** the same thing as the SNMP community string.
-
-SNMPv1 does not encrypt community names. Keep UDP port 161 on your trusted local network only.
-
-## Quick read-only test
-
-After installing dependencies, you can test discovery without switching anything:
-
-```bash
-node tools/snmp-read.js 192.168.1.50 public
-```
-
-Example output:
+It then asks the Classic8 to perform one native OFF/ON operation across all eight outlets. The resulting sequence is:
 
 ```text
-Device: PDU (32657)
-sysObjectID: 1.3.6.1.4.1.17420
-
-1: Router - ON
-2: ONT - ON
-3: Switch - ON
+~1s   Outlet 1 OFF
+~2s   Outlet 2 OFF
+~3s   Outlet 3 OFF
 ...
+~8s   Outlet 8 OFF
+~9s   Outlet 1 ON
+~10s  Outlet 2 ON
+...
+~16s  Outlet 8 ON
 ```
 
-## Homebridge configuration
+The PDU itself owns this sequence after the initial command, so Homebridge does not need to remain powered or connected while it runs.
 
-### Simplest configuration
+## Validated Lindy 32657 behaviour
 
-This exposes all eight outlets using the names stored in the Classic8 and creates power-cycle switches only:
+The following Classic8 behaviour was validated directly against a Lindy 32657:
+
+- SNMPv1 state read/write at `1.3.6.1.4.1.17420.1.2.9.1.13.0`.
+- Outlet names at `...14.1.0` through `...14.8.0`.
+- ON delay table at `...21.0` and OFF delay table at `...22.0`.
+- Native reboot request: `GET /offon.cgi?led=<24-bit selection>` using the PDU web login.
+- Single-outlet 1 second cycle by temporarily setting that outlet's ON/OFF delays to 1.
+- Multi-outlet timing behaves independently, which allows the sequential all-outlet profile above.
+
+## Configuration
+
+Example:
 
 ```json
 {
@@ -83,79 +58,68 @@ This exposes all eight outlets using the names stored in the Classic8 and create
   "host": "192.168.1.50",
   "readCommunity": "public",
   "writeCommunity": "public",
-  "cycleDelaySeconds": 10
-}
-```
-
-If your read and write community are the same, `writeCommunity` can be omitted. The plugin then uses the read community for writes as well.
-
-### Only expose selected outlets
-
-When an `outlets` list is supplied, only those outlets are exposed:
-
-```json
-{
-  "platform": "LindyClassic8",
-  "name": "Rack PDU",
-  "host": "192.168.1.50",
-  "readCommunity": "public",
-  "writeCommunity": "public",
-  "cycleDelaySeconds": 10,
-  "outlets": [
-    { "number": 1 },
-    { "number": 2, "name": "Fibre ONT", "cycleDelaySeconds": 10 },
-    { "number": 5, "name": "Network Switch" }
-  ]
-}
-```
-
-A blank `name` uses the name stored in the Classic8.
-
-### Also allow permanent on/off
-
-```json
-{
+  "webUsername": "snmp",
+  "webPassword": "YOUR_CLASSIC8_WEB_PASSWORD",
+  "cycleDelaySeconds": 1,
   "exposeCycleSwitches": true,
-  "exposeOutletSwitches": true
+  "exposeAllCycleSwitch": true,
+  "allCycleName": "Power Cycle Everything",
+  "allCycleStepSeconds": 1,
+  "exposeOutletSwitches": false
 }
 ```
 
-With this enabled, each HomeKit accessory has its normal outlet switch plus its `Power Cycle <name>` switch.
+`webPassword` is required for the native OFF/ON function. It is the same password used to log in to the Classic8 web interface. Do not send the password to anyone unnecessarily; enter it directly in your Homebridge configuration/UI.
 
-## Installation from the supplied npm package
+### Individual cycle overrides
 
-Install the `.tgz` locally on the Homebridge host/container:
-
-```bash
-npm install -g /path/to/homebridge-lindy-classic8-0.1.0.tgz
+```json
+"outlets": [
+  { "number": 1 },
+  { "number": 3, "cycleDelaySeconds": 2 },
+  { "number": 7, "name": "Hue Bridge" }
+]
 ```
 
-Then restart Homebridge and add **Lindy Classic8** in the Homebridge UI.
+If an `outlets` list is supplied, only those outlets are exposed as individual HomeKit accessories. **Power Cycle Everything still controls all eight physical outlets.**
 
-For a development install from the source folder:
+## Siri / Shortcuts
 
-```bash
-cd homebridge-lindy-classic8
-npm install
-npm link
-```
+HomeKit does not have a native `power cycle` verb. The cleanest Siri phrasing is to create Apple Shortcuts that turn the corresponding momentary switch on.
 
-Restart Homebridge afterwards.
+Examples of shortcut names:
 
-## Troubleshooting
+- `Power Cycle Myst`
+- `Power Cycle WiFi`
+- `Power Cycle the Rack Fans`
+- `Power Cycle the NAS`
+- `Power Cycle the Switch`
+- `Power Cycle Pi-hole`
+- `Power Cycle the Hue Bridge`
+- `Power Cycle pfSense`
+- `Power Cycle Everything`
 
-### Reads work but power cycling fails
+That lets Siri accept natural phrases such as **"Power cycle the rack fans"** or **"Power cycle everything"**.
 
-The SNMP read community may not have write permission. Set `writeCommunity` to the PDU's R/W community.
+## Recovery behaviour
 
-### Timeout / no response
+Before changing the Classic8 delay table for a native cycle, the plugin writes the existing values to a small recovery journal in Homebridge's persistent storage. After the operation it restores and verifies the original table.
 
-Confirm Homebridge can reach the PDU on UDP/161 and that no firewall/VLAN rule is blocking SNMP.
+If Homebridge or the network disappears before restoration can occur, the journal remains. On the next plugin start, or on a retry after connectivity returns, the original delay table is restored automatically.
 
-### The wrong names appear
+## SNMP details
 
-Either restart Homebridge after changing names in the Classic8, or set explicit `name` overrides in the `outlets` list.
+- outlet states: `1.3.6.1.4.1.17420.1.2.9.1.13.0`
+- outlet names: `1.3.6.1.4.1.17420.1.2.9.1.14.<1-8>.0`
+- ON delays: `1.3.6.1.4.1.17420.1.2.9.1.21.0`
+- OFF delays: `1.3.6.1.4.1.17420.1.2.9.1.22.0`
 
-### Safety
+The normal persistent on/off controls use a serialised read-modify-write operation so one outlet command does not overwrite the state of another outlet.
 
-A power cycle is a real hard power interruption. Do not use it on devices that can be damaged or corrupt data when power is removed unexpectedly.
+## Security
+
+The Classic8 uses SNMPv1 and HTTP Basic authentication over HTTP. Those credentials are not encrypted on the wire. Keep the PDU management interface on a trusted LAN/VLAN and do not expose SNMP or its web UI to the public internet.
+
+## Safety
+
+A power cycle is a hard power interruption. Do not use it on equipment that may corrupt data or be damaged by sudden power loss unless that is an acceptable recovery action.

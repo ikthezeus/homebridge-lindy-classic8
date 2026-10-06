@@ -2,8 +2,8 @@
   "pluginAlias": "LindyClassic8",
   "pluginType": "platform",
   "singular": false,
-  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657) over SNMP. By default each selected outlet appears as a momentary Power Cycle switch that powers the outlet off, waits, then turns it back on.",
-  "footerDisplay": "SNMPv1 communities are sent in clear text. Keep the Classic8 and Homebridge on a trusted LAN/VLAN and do not expose UDP/161 to the internet.",
+  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657). Power cycles use the PDU's native OFF/ON function so the cycle can complete even when Homebridge or the network is one of the outlets being rebooted.",
+  "footerDisplay": "SNMPv1 communities and the Classic8 HTTP Basic login are not encrypted on the wire. Keep the PDU and Homebridge on a trusted LAN/VLAN and do not expose the management interfaces to the internet.",
   "schema": {
     "type": "object",
     "required": ["name", "host"],
@@ -37,12 +37,32 @@
         "default": "public",
         "x-schema-form": { "type": "password" }
       },
+      "webUsername": {
+        "title": "Classic8 Web Username",
+        "type": "string",
+        "default": "snmp",
+        "description": "Used only for the PDU-native OFF/ON command."
+      },
+      "webPassword": {
+        "title": "Classic8 Web Password",
+        "type": "string",
+        "description": "Required for Power Cycle controls. This is the password used to log in to the Classic8 web interface.",
+        "x-schema-form": { "type": "password" }
+      },
+      "webPort": {
+        "title": "Classic8 Web Port",
+        "type": "integer",
+        "default": 80,
+        "minimum": 1,
+        "maximum": 65535
+      },
       "cycleDelaySeconds": {
-        "title": "Power Cycle Off Time (seconds)",
-        "type": "number",
-        "default": 5,
-        "minimum": 0.5,
-        "maximum": 300
+        "title": "Individual Power Cycle Delay (seconds)",
+        "type": "integer",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 255,
+        "description": "For an individual outlet, the PDU temporarily uses this value for both its OFF and ON delay. The original delay table is restored afterwards."
       },
       "cyclePrefix": {
         "title": "Power Cycle Switch Prefix",
@@ -51,9 +71,27 @@
         "description": "For example, an outlet named Router becomes Power Cycle Router."
       },
       "exposeCycleSwitches": {
-        "title": "Expose Power Cycle Switches",
+        "title": "Expose Individual Power Cycle Switches",
         "type": "boolean",
         "default": true
+      },
+      "exposeAllCycleSwitch": {
+        "title": "Expose Power Cycle Everything",
+        "type": "boolean",
+        "default": true
+      },
+      "allCycleName": {
+        "title": "Power Cycle Everything Name",
+        "type": "string",
+        "default": "Power Cycle Everything"
+      },
+      "allCycleStepSeconds": {
+        "title": "Power Cycle Everything Step (seconds)",
+        "type": "integer",
+        "default": 1,
+        "minimum": 1,
+        "maximum": 31,
+        "description": "Outlet 1 goes OFF, then each following outlet goes OFF this many seconds later. After outlet 8 is OFF, outlets come back ON in the same 1-8 order with the same spacing."
       },
       "exposeOutletSwitches": {
         "title": "Also Expose Permanent On/Off Switches",
@@ -82,9 +120,16 @@
         "minimum": 0,
         "maximum": 5
       },
+      "httpTimeout": {
+        "title": "Classic8 HTTP Timeout (milliseconds)",
+        "type": "integer",
+        "default": 5000,
+        "minimum": 1000,
+        "maximum": 30000
+      },
       "outlets": {
         "title": "Outlet Selection / Name Overrides",
-        "description": "Leave empty to expose all eight outlets and read their names directly from the Classic8. If entries are added, only those outlets are exposed.",
+        "description": "Leave empty to expose all eight outlets and read their names directly from the Classic8. If entries are added, only those outlets are exposed individually. Power Cycle Everything still controls all eight physical outlets.",
         "type": "array",
         "items": {
           "type": "object",
@@ -107,10 +152,10 @@
               "default": true
             },
             "cycleDelaySeconds": {
-              "title": "Override Power Cycle Off Time (seconds)",
-              "type": "number",
-              "minimum": 0.5,
-              "maximum": 300
+              "title": "Individual Cycle Delay Override (seconds)",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 255
             }
           }
         }
