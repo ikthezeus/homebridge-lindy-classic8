@@ -40,7 +40,7 @@ The PDU itself owns this sequence after the initial command, so Homebridge does 
 
 The following Classic8 behaviour was validated directly against a Lindy 32657:
 
-- SNMPv1 state read/write at `1.3.6.1.4.1.17420.1.2.9.1.13.0`.
+- SNMPv1 state read/write at `1.3.6.1.4.1.17420.1.6.9.1.13.0`.
 - Outlet names at `...14.1.0` through `...14.8.0`.
 - ON delay table at `...21.0` and OFF delay table at `...22.0`.
 - Native reboot request: `GET /offon.cgi?led=<24-bit selection>` using the PDU web login.
@@ -109,10 +109,10 @@ If Homebridge or the network disappears before restoration can occur, the journa
 
 ## SNMP details
 
-- outlet states: `1.3.6.1.4.1.17420.1.2.9.1.13.0`
-- outlet names: `1.3.6.1.4.1.17420.1.2.9.1.14.<1-8>.0`
-- ON delays: `1.3.6.1.4.1.17420.1.2.9.1.21.0`
-- OFF delays: `1.3.6.1.4.1.17420.1.2.9.1.22.0`
+- outlet states: `1.3.6.1.4.1.17420.1.6.9.1.13.0`
+- outlet names: `1.3.6.1.4.1.17420.1.6.9.1.14.<1-8>.0`
+- ON delays: `1.3.6.1.4.1.17420.1.6.9.1.21.0`
+- OFF delays: `1.3.6.1.4.1.17420.1.6.9.1.22.0`
 
 The normal persistent on/off controls use a serialised read-modify-write operation so one outlet command does not overwrite the state of another outlet.
 
