@@ -12,6 +12,7 @@ Homebridge plugin for the **Lindy IPower Switch Classic 8 (Lindy 32657)**.
 - Adds **Power Cycle Everything**.
 - Preserves the PDU's normal ON/OFF delay table and restores it after temporary cycle-specific changes.
 - Persists a recovery journal under the Homebridge storage directory so delay restoration survives Homebridge itself being power-cycled.
+- Uses the action name (for example **Power Cycle Hue Bridge**) as the HomeKit accessory display name so Apple Home proposes the correct name during pairing.
 
 ## Power Cycle Everything
 
@@ -40,7 +41,7 @@ The PDU itself owns this sequence after the initial command, so Homebridge does 
 
 The following Classic8 behaviour was validated directly against a Lindy 32657:
 
-- SNMPv1 state read/write at `1.3.6.1.4.1.17420.1.6.9.1.13.0`.
+- SNMPv1 state read/write at `1.3.6.1.4.1.17420.1.2.9.1.13.0`.
 - Outlet names at `...14.1.0` through `...14.8.0`.
 - ON delay table at `...21.0` and OFF delay table at `...22.0`.
 - Native reboot request: `GET /offon.cgi?led=<24-bit selection>` using the PDU web login.
@@ -81,7 +82,7 @@ Example:
 ]
 ```
 
-If an `outlets` list is supplied, only those outlets are exposed as individual HomeKit accessories. **Power Cycle Everything still controls all eight physical outlets.**
+All eight outlets are exposed by default. Entries in `outlets` are per-outlet overrides: use them to rename an outlet in HomeKit, change its individual cycle delay, or set `"enabled": false` to hide that individual outlet. **Power Cycle Everything still controls all eight physical outlets.**
 
 ## Siri / Shortcuts
 
@@ -109,10 +110,10 @@ If Homebridge or the network disappears before restoration can occur, the journa
 
 ## SNMP details
 
-- outlet states: `1.3.6.1.4.1.17420.1.6.9.1.13.0`
-- outlet names: `1.3.6.1.4.1.17420.1.6.9.1.14.<1-8>.0`
-- ON delays: `1.3.6.1.4.1.17420.1.6.9.1.21.0`
-- OFF delays: `1.3.6.1.4.1.17420.1.6.9.1.22.0`
+- outlet states: `1.3.6.1.4.1.17420.1.2.9.1.13.0`
+- outlet names: `1.3.6.1.4.1.17420.1.2.9.1.14.<1-8>.0`
+- ON delays: `1.3.6.1.4.1.17420.1.2.9.1.21.0`
+- OFF delays: `1.3.6.1.4.1.17420.1.2.9.1.22.0`
 
 The normal persistent on/off controls use a serialised read-modify-write operation so one outlet command does not overwrite the state of another outlet.
 
@@ -123,3 +124,11 @@ The Classic8 uses SNMPv1 and HTTP Basic authentication over HTTP. Those credenti
 ## Safety
 
 A power cycle is a hard power interruption. Do not use it on equipment that may corrupt data or be damaged by sudden power loss unless that is an acceptable recovery action.
+
+## Maintainer
+
+Maintained by **ikthezeus**.
+
+## Publishing / Homebridge verification
+
+The package is intended to be published to npm as `homebridge-lindy-classic8`. The Homebridge verification process currently requires the source repository to be publicly available on **GitHub** with issues enabled, even if development also happens elsewhere. A GitLab repository can therefore remain the primary development remote, but a public GitHub mirror/repository is needed for a Homebridge verification request.
