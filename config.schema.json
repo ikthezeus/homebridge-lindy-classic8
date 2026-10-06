@@ -2,7 +2,7 @@
   "pluginAlias": "LindyClassic8",
   "pluginType": "platform",
   "singular": false,
-  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657) over SNMP. By default each selected outlet appears as a momentary Restart switch that powers the outlet off, waits, then turns it back on.",
+  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657) over SNMP. By default each selected outlet appears as a momentary Power Cycle switch that powers the outlet off, waits, then turns it back on.",
   "footerDisplay": "SNMPv1 communities are sent in clear text. Keep the Classic8 and Homebridge on a trusted LAN/VLAN and do not expose UDP/161 to the internet.",
   "schema": {
     "type": "object",
@@ -45,13 +45,13 @@
         "maximum": 300
       },
       "cyclePrefix": {
-        "title": "Restart Switch Prefix",
+        "title": "Power Cycle Switch Prefix",
         "type": "string",
-        "default": "Restart",
-        "description": "For example, an outlet named Router becomes Restart Router."
+        "default": "Power Cycle",
+        "description": "For example, an outlet named Router becomes Power Cycle Router."
       },
       "exposeCycleSwitches": {
-        "title": "Expose Restart Switches",
+        "title": "Expose Power Cycle Switches",
         "type": "boolean",
         "default": true
       },

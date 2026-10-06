@@ -5,7 +5,7 @@ Homebridge plugin for the **Lindy IPower Switch Classic 8 (Lindy 32657)**.
 It talks directly to the Classic8 over **SNMPv1** and can:
 
 - read the eight outlet names from the PDU automatically;
-- expose a momentary **Restart / Power Cycle** switch for each selected outlet;
+- expose a momentary **Power Cycle** switch for each selected outlet;
 - optionally expose normal persistent on/off switches;
 - read the actual outlet states from the PDU;
 - use a configurable off-time for power cycles;
@@ -14,22 +14,22 @@ It talks directly to the Classic8 over **SNMPv1** and can:
 
 ## HomeKit behaviour
 
-The safe default is **restart-only**.
+The safe default is **power-cycle-only**.
 
 If the Classic8 has an outlet named `Router`, HomeKit gets a switch called:
 
-`Restart Router`
+`Power Cycle Router`
 
 Turning that switch on performs:
 
 1. Router outlet OFF
 2. wait 5 seconds (configurable)
 3. Router outlet ON
-4. `Restart Router` returns to OFF automatically
+4. `Power Cycle Router` returns to OFF automatically
 
 This makes Siri usage straightforward, for example:
 
-> Turn on Restart Router
+> Turn on Power Cycle Router
 
 Permanent outlet controls are disabled by default so a critical device is less likely to be accidentally left switched off. They can be enabled with `exposeOutletSwitches`.
 
@@ -74,7 +74,7 @@ sysObjectID: 1.3.6.1.4.1.17420
 
 ### Simplest configuration
 
-This exposes all eight outlets using the names stored in the Classic8 and creates restart switches only:
+This exposes all eight outlets using the names stored in the Classic8 and creates power-cycle switches only:
 
 ```json
 {
@@ -120,7 +120,7 @@ A blank `name` uses the name stored in the Classic8.
 }
 ```
 
-With this enabled, each HomeKit accessory has its normal outlet switch plus its `Restart <name>` switch.
+With this enabled, each HomeKit accessory has its normal outlet switch plus its `Power Cycle <name>` switch.
 
 ## Installation from the supplied npm package
 
@@ -144,7 +144,7 @@ Restart Homebridge afterwards.
 
 ## Troubleshooting
 
-### Reads work but restart fails
+### Reads work but power cycling fails
 
 The SNMP read community may not have write permission. Set `writeCommunity` to the PDU's R/W community.
 

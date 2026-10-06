@@ -1,6 +1,6 @@
 {
   "name": "homebridge-lindy-classic8",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Homebridge plugin for the Lindy IPower Switch Classic 8 (32657) using SNMP.",
   "license": "MIT",
   "main": "index.js",
