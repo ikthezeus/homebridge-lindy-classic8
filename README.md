@@ -82,7 +82,7 @@ npm install -g homebridge-lindy-classic8
 Until the npm release is available, clone the repository for development/testing:
 
 ```bash
-git clone https://gitlab.com/homebridge4/homebridge-lindy-classic8.git
+git clone https://github.com/ikthezeus/homebridge-lindy-classic8.git
 cd homebridge-lindy-classic8
 npm install
 npm test
@@ -186,6 +186,14 @@ npm pack --dry-run
 ```
 
 Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
+
+
+## Repository
+
+The project is developed in GitLab and mirrored publicly to GitHub for the Homebridge ecosystem.
+
+- Public source, issues and releases: https://github.com/ikthezeus/homebridge-lindy-classic8
+- Development upstream: https://gitlab.com/homebridge4/homebridge-lindy-classic8
 
 ## Changelog
 

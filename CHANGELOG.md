@@ -6,6 +6,9 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Add the public GitHub mirror and GitHub Issues/Release metadata required for the Homebridge ecosystem.
+- Add GitHub Actions validation on Node.js 22, 24 and 26.
+
 - Align the CI matrix with the current Homebridge-supported Node.js LTS releases: Node.js 22, 24 and 26.
 - Explicitly declare compatibility with Homebridge 1.8+ and Homebridge 2.x.
 - Raise the minimum supported Node.js version to Node.js 22.12.0.
