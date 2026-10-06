@@ -50,7 +50,7 @@ async function github(path, { method = 'GET', body, allow404 = false } = {}) {
     body: body ? JSON.stringify(body) : undefined,
   });
 
-  if (allow404 && response.status === 404) {
+  if (allow404 && (response.status === 404 || response.status === 410)) {
     return null;
   }
 
