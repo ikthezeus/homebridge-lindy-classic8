@@ -74,10 +74,10 @@ function issueDescription(currentIssue) {
 
   return [
     `<!-- github-issue:${process.env.GITHUB_REPOSITORY}#${currentIssue.number} -->`,
-    '> **One-way mirror from GitHub.** GitHub is the public source of truth for this issue.',
+    '> **One-way content mirror from GitHub.** GitHub remains the public source of truth for the issue title/body.',
     `> Original: ${currentIssue.html_url}`,
     `> Reporter: @${currentIssue.user?.login || 'unknown'}`,
-    `> GitHub state: **${currentIssue.state}**`,
+    `> GitHub state at last GitHub-side event: **${currentIssue.state}**`,
     `> GitHub labels: ${labels.length ? labels.map((label) => `\`${label}\``).join(', ') : '_none_'}`,
     `> GitHub assignees: ${assignees.length ? assignees.map((login) => `@${login}`).join(', ') : '_none_'}`,
     '',
@@ -87,7 +87,7 @@ function issueDescription(currentIssue) {
     '',
     '---',
     '',
-    '_Development notes added directly in GitLab comments are private to GitLab and are not copied back to GitHub._',
+    '_Private GitLab development notes are never copied to GitHub unless a note starts with `PUBLIC:`._',
   ].join('\n');
 }
 
@@ -99,7 +99,7 @@ async function findMirroredIssue(currentIssue) {
   return (matches || []).find((candidate) => candidate.title?.startsWith(prefix)) || null;
 }
 
-async function ensureMirroredIssue(currentIssue) {
+async function ensureMirroredIssue(currentIssue, { syncState = false } = {}) {
   let mirrored = await findMirroredIssue(currentIssue);
 
   const payload = {
@@ -121,17 +121,19 @@ async function ensureMirroredIssue(currentIssue) {
     console.log(`Updated GitLab issue !${mirrored.iid} from GitHub #${currentIssue.number}.`);
   }
 
-  const shouldBeClosed = currentIssue.state === 'closed';
-  const isClosed = mirrored.state === 'closed';
+  if (syncState) {
+    const shouldBeClosed = currentIssue.state === 'closed';
+    const isClosed = mirrored.state === 'closed';
 
-  if (shouldBeClosed !== isClosed) {
-    mirrored = await gitlab(`/issues/${mirrored.iid}`, {
-      method: 'PUT',
-      body: {
-        state_event: shouldBeClosed ? 'close' : 'reopen',
-      },
-    });
-    console.log(`${shouldBeClosed ? 'Closed' : 'Reopened'} GitLab issue !${mirrored.iid}.`);
+    if (shouldBeClosed !== isClosed) {
+      mirrored = await gitlab(`/issues/${mirrored.iid}`, {
+        method: 'PUT',
+        body: {
+          state_event: shouldBeClosed ? 'close' : 'reopen',
+        },
+      });
+      console.log(`${shouldBeClosed ? 'Closed' : 'Reopened'} GitLab issue !${mirrored.iid} from GitHub state.`);
+    }
   }
 
   return mirrored;
@@ -174,11 +176,17 @@ async function syncComment(mirrored, comment, eventAction) {
   if (eventAction === 'deleted') {
     if (existing) {
       await gitlab(`/issues/${mirrored.iid}/notes/${existing.id}`, {
-        method: 'DELETE',
+        method: 'PUT',
+        body: {
+          body: [
+            `<!-- github-comment-id:${comment.id} -->`,
+            '_The source GitHub comment was deleted, so its mirrored content has been redacted._',
+          ].join('\n'),
+        },
       });
-      console.log(`Deleted mirrored GitLab note for GitHub comment ${comment.id}.`);
+      console.log(`Redacted mirrored GitLab note for deleted GitHub comment ${comment.id}.`);
     } else {
-      console.log(`No mirrored GitLab note found for deleted GitHub comment ${comment.id}; nothing to remove.`);
+      console.log(`No mirrored GitLab note found for deleted GitHub comment ${comment.id}; nothing to redact.`);
     }
     return;
   }
@@ -200,7 +208,59 @@ async function syncComment(mirrored, comment, eventAction) {
   }
 }
 
-const mirrored = await ensureMirroredIssue(issue);
+async function tombstoneDeletedIssue(currentIssue) {
+  const mirrored = await findMirroredIssue(currentIssue);
+
+  if (!mirrored) {
+    console.log(`No GitLab mirror found for deleted GitHub #${currentIssue.number}; nothing to tombstone.`);
+    return;
+  }
+
+  const notes = await listIssueNotes(mirrored.iid);
+
+  for (const note of notes) {
+    const marker = note.body?.match(/<!-- github-comment-id:(\d+) -->/);
+    if (!marker) {
+      continue;
+    }
+
+    await gitlab(`/issues/${mirrored.iid}/notes/${note.id}`, {
+      method: 'PUT',
+      body: {
+        body: [
+          `<!-- github-comment-id:${marker[1]} -->`,
+          '_Mirrored GitHub comment redacted because the source GitHub issue was deleted._',
+        ].join('\n'),
+      },
+    });
+  }
+
+  await gitlab(`/issues/${mirrored.iid}`, {
+    method: 'PUT',
+    body: {
+      title: `[GitHub #${currentIssue.number}] [SOURCE DELETED]`,
+      description: [
+        `<!-- github-issue:${process.env.GITHUB_REPOSITORY}#${currentIssue.number} -->`,
+        '> **The source GitHub issue was deleted.**',
+        '',
+        'The public title, body and mirrored GitHub comments have been redacted from this private development mirror.',
+        'Private GitLab-only development notes have been retained.',
+      ].join('\n'),
+      state_event: 'close',
+    },
+  });
+
+  console.log(`Tombstoned and closed GitLab issue !${mirrored.iid} after GitHub #${currentIssue.number} was deleted.`);
+}
+
+if (eventName === 'issues' && action === 'deleted') {
+  await tombstoneDeletedIssue(issue);
+  console.log(`GitHub #${issue.number} deletion mirror sync complete.`);
+  process.exit(0);
+}
+
+const syncState = eventName === 'issues' && ['opened', 'closed', 'reopened'].includes(action);
+const mirrored = await ensureMirroredIssue(issue, { syncState });
 
 if (eventName === 'issue_comment') {
   if (!event.comment) {
