@@ -190,10 +190,10 @@ Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Repository
 
-The project is developed in GitLab and mirrored publicly to GitHub for the Homebridge ecosystem.
+GitHub is the public canonical repository for the Homebridge ecosystem.
 
 - Public source, issues and releases: https://github.com/ikthezeus/homebridge-lindy-classic8
-- Development upstream: https://gitlab.com/homebridge4/homebridge-lindy-classic8
+- Development and CI are maintained in a private GitLab upstream.
 
 ## Changelog
 
