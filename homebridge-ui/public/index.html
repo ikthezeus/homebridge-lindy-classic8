@@ -1,0 +1,336 @@
+<style>
+  :root { --lindy-gap: 1rem; }
+  .lindy-wrap { padding: .25rem .25rem 1rem; }
+  .lindy-intro { margin-bottom: 1rem; }
+  .lindy-card { margin-bottom: 1rem; border-radius: .55rem; overflow: hidden; }
+  .lindy-card .card-header { font-weight: 600; display:flex; align-items:center; justify-content:space-between; gap:.75rem; }
+  .lindy-card .card-body { padding: 1rem; }
+  .lindy-grid { display:grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: .9rem 1rem; }
+  .lindy-full { grid-column: 1 / -1; }
+  .lindy-help { font-size: .82rem; opacity: .72; margin-top: .3rem; }
+  .lindy-range-row { display:grid; grid-template-columns: minmax(150px,1fr) 90px; gap:.75rem; align-items:center; }
+  .lindy-range-row input[type="range"] { width:100%; }
+  .lindy-range-row input[type="number"] { text-align:right; }
+  .lindy-switch-row { display:flex; align-items:flex-start; justify-content:space-between; gap:1rem; padding:.45rem 0; }
+  .lindy-switch-copy { min-width:0; }
+  .lindy-switch-copy strong { display:block; font-weight:600; }
+  .lindy-outlets { display:grid; gap:.75rem; }
+  .lindy-outlet { border:1px solid rgba(128,128,128,.28); border-radius:.5rem; padding:.85rem; }
+  .lindy-outlet-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; margin-bottom:.7rem; }
+  .lindy-outlet-title { font-weight:600; font-size:1rem; }
+  .lindy-outlet-grid { display:grid; grid-template-columns: minmax(0,1.35fr) minmax(220px,1fr); gap:.75rem 1rem; align-items:end; }
+  .lindy-inline-toggle { display:flex; gap:.5rem; align-items:center; margin-bottom:.4rem; }
+  .lindy-advanced summary { cursor:pointer; font-weight:600; padding:.1rem 0; }
+  .lindy-advanced[open] summary { margin-bottom:.9rem; }
+  .lindy-warning { display:none; }
+  .lindy-warning.show { display:block; }
+  .lindy-required::after { content:' *'; color:#dc3545; }
+  @media (max-width: 700px) {
+    .lindy-grid, .lindy-outlet-grid { grid-template-columns:1fr; }
+    .lindy-range-row { grid-template-columns:minmax(0,1fr) 82px; }
+  }
+</style>
+
+<div class="lindy-wrap">
+  <div class="alert alert-info lindy-intro mb-3">
+    <strong>Lindy Classic8 (32657)</strong><br>
+    Power cycles use the PDU's native OFF/ON function, so a cycle can finish even when the NAS, Homebridge or network path is one of the outlets being restarted.
+  </div>
+
+  <div id="validationWarning" class="alert alert-warning lindy-warning"></div>
+
+  <div class="card lindy-card">
+    <div class="card-header">Connection</div>
+    <div class="card-body">
+      <div class="lindy-grid">
+        <div>
+          <label class="form-label lindy-required" for="name">Platform name</label>
+          <input class="form-control" id="name" type="text">
+        </div>
+        <div>
+          <label class="form-label lindy-required" for="host">Classic8 IP address / hostname</label>
+          <input class="form-control" id="host" type="text" inputmode="url" placeholder="192.168.1.50">
+        </div>
+        <div>
+          <label class="form-label" for="readCommunity">SNMP read community</label>
+          <input class="form-control" id="readCommunity" type="text" autocomplete="off">
+        </div>
+        <div>
+          <label class="form-label" for="writeCommunity">SNMP write community</label>
+          <input class="form-control" id="writeCommunity" type="password" autocomplete="new-password">
+          <div class="lindy-help">Leave blank to use the read community.</div>
+        </div>
+        <div>
+          <label class="form-label" for="webUsername">Classic8 web username</label>
+          <input class="form-control" id="webUsername" type="text" autocomplete="username">
+        </div>
+        <div>
+          <label class="form-label" for="webPassword">Classic8 web password</label>
+          <input class="form-control" id="webPassword" type="password" autocomplete="new-password">
+          <div class="lindy-help">Used for the PDU-native OFF/ON command.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card lindy-card">
+    <div class="card-header">Power cycle controls</div>
+    <div class="card-body">
+      <div class="lindy-grid">
+        <div class="lindy-full">
+          <label class="form-label">Individual power-cycle delay</label>
+          <div class="lindy-range-row">
+            <input id="cycleDelaySecondsRange" type="range" min="1" max="255" step="1">
+            <input id="cycleDelaySeconds" class="form-control" type="number" min="1" max="255" step="1">
+          </div>
+          <div class="lindy-help">Seconds used temporarily for both the selected outlet's OFF and ON delay. Default: 1 second.</div>
+        </div>
+        <div>
+          <label class="form-label" for="cyclePrefix">Individual switch prefix</label>
+          <input class="form-control" id="cyclePrefix" type="text">
+          <div class="lindy-help">Example: Power Cycle Rack Fans.</div>
+        </div>
+        <div>
+          <label class="form-label" for="allCycleName">Everything switch name</label>
+          <input class="form-control" id="allCycleName" type="text">
+        </div>
+        <div class="lindy-full">
+          <label class="form-label">Power Cycle Everything step</label>
+          <div class="lindy-range-row">
+            <input id="allCycleStepSecondsRange" type="range" min="1" max="31" step="1">
+            <input id="allCycleStepSeconds" class="form-control" type="number" min="1" max="31" step="1">
+          </div>
+          <div class="lindy-help">With 1 second: outlets 1-8 switch OFF one per second, then return ON in the same 1-8 order one per second.</div>
+        </div>
+      </div>
+
+      <hr>
+      <div class="lindy-switch-row">
+        <div class="lindy-switch-copy"><strong>Individual power-cycle switches</strong><span class="lindy-help">Expose a momentary Power Cycle control for each enabled outlet.</span></div>
+        <div class="form-check form-switch"><input class="form-check-input" id="exposeCycleSwitches" type="checkbox"></div>
+      </div>
+      <div class="lindy-switch-row">
+        <div class="lindy-switch-copy"><strong>Power Cycle Everything</strong><span class="lindy-help">Expose the autonomous all-outlet sequence control.</span></div>
+        <div class="form-check form-switch"><input class="form-check-input" id="exposeAllCycleSwitch" type="checkbox"></div>
+      </div>
+      <div class="lindy-switch-row">
+        <div class="lindy-switch-copy"><strong>Permanent on/off switches</strong><span class="lindy-help">Optional. Leave disabled to reduce the chance of accidentally leaving equipment powered off.</span></div>
+        <div class="form-check form-switch"><input class="form-check-input" id="exposeOutletSwitches" type="checkbox"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card lindy-card">
+    <div class="card-header">
+      <span>Outlet overrides</span>
+      <small class="text-muted">Optional</small>
+    </div>
+    <div class="card-body">
+      <p class="mb-3">All eight outlets are exposed by default and use the names stored in the Classic8. Use a row below only when you want to rename an outlet in HomeKit, change its individual cycle delay, or hide it.</p>
+      <div id="outletRows" class="lindy-outlets"></div>
+    </div>
+  </div>
+
+  <div class="card lindy-card">
+    <div class="card-body">
+      <details class="lindy-advanced">
+        <summary>Advanced network &amp; polling settings</summary>
+        <div class="lindy-grid">
+          <div>
+            <label class="form-label">SNMP port</label>
+            <div class="lindy-range-row"><input id="portRange" type="range" min="1" max="65535" step="1"><input id="port" class="form-control" type="number" min="1" max="65535" step="1"></div>
+          </div>
+          <div>
+            <label class="form-label">Classic8 web port</label>
+            <div class="lindy-range-row"><input id="webPortRange" type="range" min="1" max="65535" step="1"><input id="webPort" class="form-control" type="number" min="1" max="65535" step="1"></div>
+          </div>
+          <div>
+            <label class="form-label">Status poll interval (seconds)</label>
+            <div class="lindy-range-row"><input id="pollIntervalSecondsRange" type="range" min="5" max="3600" step="1"><input id="pollIntervalSeconds" class="form-control" type="number" min="5" max="3600" step="1"></div>
+          </div>
+          <div>
+            <label class="form-label">SNMP timeout (milliseconds)</label>
+            <div class="lindy-range-row"><input id="timeoutRange" type="range" min="500" max="30000" step="100"><input id="timeout" class="form-control" type="number" min="500" max="30000" step="100"></div>
+          </div>
+          <div>
+            <label class="form-label">SNMP retries</label>
+            <div class="lindy-range-row"><input id="retriesRange" type="range" min="0" max="5" step="1"><input id="retries" class="form-control" type="number" min="0" max="5" step="1"></div>
+          </div>
+          <div>
+            <label class="form-label">Classic8 HTTP timeout (milliseconds)</label>
+            <div class="lindy-range-row"><input id="httpTimeoutRange" type="range" min="1000" max="30000" step="100"><input id="httpTimeout" class="form-control" type="number" min="1000" max="30000" step="100"></div>
+          </div>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="alert alert-secondary mb-0">
+    SNMPv1 community strings and the Classic8 HTTP Basic login are not encrypted on the wire. Keep the PDU and Homebridge on a trusted LAN/VLAN and do not expose either management interface to the internet.
+  </div>
+</div>
+
+<script>
+(async () => {
+  const hb = window.homebridge;
+  const defaults = {
+    platform: 'LindyClassic8', name: 'Lindy Classic8', host: '192.168.1.50',
+    port: 161, readCommunity: 'public', writeCommunity: 'public',
+    webUsername: 'snmp', webPassword: '', webPort: 80,
+    cycleDelaySeconds: 1, cyclePrefix: 'Power Cycle',
+    exposeCycleSwitches: true, exposeAllCycleSwitch: true,
+    allCycleName: 'Power Cycle Everything', allCycleStepSeconds: 1,
+    exposeOutletSwitches: false, pollIntervalSeconds: 15,
+    timeout: 3000, retries: 1, httpTimeout: 5000, outlets: []
+  };
+
+  const blocks = await hb.getPluginConfig();
+  let config = Object.assign({}, defaults, blocks[0] || {});
+  config.platform = 'LindyClassic8';
+  if (!Array.isArray(config.outlets)) config.outlets = [];
+
+  const $ = (id) => document.getElementById(id);
+  const textFields = ['name','host','readCommunity','writeCommunity','webUsername','webPassword','cyclePrefix','allCycleName'];
+  const boolFields = ['exposeCycleSwitches','exposeAllCycleSwitch','exposeOutletSwitches'];
+  const numericFields = [
+    ['cycleDelaySeconds',1,255], ['allCycleStepSeconds',1,31], ['port',1,65535],
+    ['webPort',1,65535], ['pollIntervalSeconds',5,3600], ['timeout',500,30000],
+    ['retries',0,5], ['httpTimeout',1000,30000]
+  ];
+
+  function clamp(value, min, max, fallback) {
+    const n = Number.parseInt(value, 10);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, n));
+  }
+
+  function buildOutletRows() {
+    const byNumber = new Map(config.outlets.map((o) => [Number(o.number), o]));
+    const holder = $('outletRows');
+    holder.innerHTML = '';
+    for (let number = 1; number <= 8; number++) {
+      const o = byNumber.get(number) || {};
+      const row = document.createElement('div');
+      row.className = 'lindy-outlet';
+      row.dataset.outlet = String(number);
+      row.innerHTML = `
+        <div class="lindy-outlet-head">
+          <div class="lindy-outlet-title">Outlet ${number}</div>
+          <div class="form-check form-switch m-0">
+            <input class="form-check-input outlet-enabled" type="checkbox" ${o.enabled === false ? '' : 'checked'}>
+            <label class="form-check-label">Expose</label>
+          </div>
+        </div>
+        <div class="lindy-outlet-grid">
+          <div>
+            <label class="form-label">HomeKit name override</label>
+            <input class="form-control outlet-name" type="text" value="${escapeHtml(o.name || '')}" placeholder="Use name stored in Classic8">
+          </div>
+          <div>
+            <div class="lindy-inline-toggle">
+              <input class="form-check-input outlet-delay-enabled" type="checkbox" ${o.cycleDelaySeconds !== undefined ? 'checked' : ''}>
+              <label class="form-check-label">Override cycle delay</label>
+            </div>
+            <div class="lindy-range-row">
+              <input class="outlet-delay-range" type="range" min="1" max="255" step="1" value="${o.cycleDelaySeconds !== undefined ? clamp(o.cycleDelaySeconds,1,255,config.cycleDelaySeconds) : config.cycleDelaySeconds}">
+              <input class="form-control outlet-delay" type="number" min="1" max="255" step="1" value="${o.cycleDelaySeconds !== undefined ? clamp(o.cycleDelaySeconds,1,255,config.cycleDelaySeconds) : config.cycleDelaySeconds}">
+            </div>
+          </div>
+        </div>`;
+      holder.appendChild(row);
+      const enabled = row.querySelector('.outlet-enabled');
+      const name = row.querySelector('.outlet-name');
+      const delayEnabled = row.querySelector('.outlet-delay-enabled');
+      const delayRange = row.querySelector('.outlet-delay-range');
+      const delay = row.querySelector('.outlet-delay');
+      const setDelayState = () => {
+        delayRange.disabled = !delayEnabled.checked;
+        delay.disabled = !delayEnabled.checked;
+      };
+      setDelayState();
+      [enabled,name,delayEnabled].forEach((el) => el.addEventListener('input', () => { setDelayState(); queueSync(); }));
+      delayRange.addEventListener('input', () => { delay.value = delayRange.value; queueSync(); });
+      delay.addEventListener('input', () => { if (delay.value !== '') delayRange.value = String(clamp(delay.value,1,255,config.cycleDelaySeconds)); queueSync(); });
+      delay.addEventListener('change', () => { delay.value = String(clamp(delay.value,1,255,config.cycleDelaySeconds)); delayRange.value = delay.value; queueSync(); });
+    }
+  }
+
+  function escapeHtml(value) {
+    return String(value).replace(/[&<>'"]/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
+  }
+
+  function hydrate() {
+    for (const id of textFields) $(id).value = config[id] ?? defaults[id] ?? '';
+    for (const id of boolFields) $(id).checked = Boolean(config[id]);
+    for (const [id,min,max] of numericFields) {
+      const val = clamp(config[id], min, max, defaults[id]);
+      $(id).value = String(val);
+      $(id + 'Range').value = String(val);
+    }
+    buildOutletRows();
+    validate();
+  }
+
+  let syncTimer;
+  function queueSync() {
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(syncConfig, 80);
+  }
+
+  async function syncConfig() {
+    for (const id of textFields) config[id] = $(id).value.trim();
+    for (const id of boolFields) config[id] = $(id).checked;
+    for (const [id,min,max] of numericFields) config[id] = clamp($(id).value, min, max, defaults[id]);
+    if (!config.writeCommunity) delete config.writeCommunity;
+
+    const outlets = [];
+    document.querySelectorAll('.lindy-outlet').forEach((row) => {
+      const number = Number(row.dataset.outlet);
+      const enabled = row.querySelector('.outlet-enabled').checked;
+      const name = row.querySelector('.outlet-name').value.trim();
+      const delayEnabled = row.querySelector('.outlet-delay-enabled').checked;
+      const delay = clamp(row.querySelector('.outlet-delay').value, 1, 255, config.cycleDelaySeconds);
+      if (!enabled || name || delayEnabled) {
+        const entry = { number };
+        if (!enabled) entry.enabled = false;
+        if (name) entry.name = name;
+        if (delayEnabled) entry.cycleDelaySeconds = delay;
+        outlets.push(entry);
+      }
+    });
+    config.outlets = outlets;
+    validate();
+    await hb.updatePluginConfig([config]);
+  }
+
+  function validate() {
+    const problems = [];
+    if (!$('name').value.trim()) problems.push('Platform name is required.');
+    if (!$('host').value.trim()) problems.push('Classic8 IP address / hostname is required.');
+    if (($('exposeCycleSwitches').checked || $('exposeAllCycleSwitch').checked) && !$('webPassword').value) {
+      problems.push('Classic8 web password is required while Power Cycle controls are enabled.');
+    }
+    const warning = $('validationWarning');
+    if (problems.length) {
+      warning.textContent = problems.join(' ');
+      warning.classList.add('show');
+      hb.disableSaveButton();
+    } else {
+      warning.classList.remove('show');
+      hb.enableSaveButton();
+    }
+  }
+
+  for (const id of textFields) $(id).addEventListener('input', queueSync);
+  for (const id of boolFields) $(id).addEventListener('change', queueSync);
+  for (const [id,min,max] of numericFields) {
+    const range = $(id + 'Range');
+    const number = $(id);
+    range.addEventListener('input', () => { number.value = range.value; queueSync(); });
+    number.addEventListener('input', () => { if (number.value !== '') range.value = String(clamp(number.value,min,max,defaults[id])); queueSync(); });
+    number.addEventListener('change', () => { number.value = String(clamp(number.value,min,max,defaults[id])); range.value = number.value; queueSync(); });
+  }
+
+  hydrate();
+})();
+</script>

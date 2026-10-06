@@ -1,12 +1,15 @@
 {
   "pluginAlias": "LindyClassic8",
   "pluginType": "platform",
-  "singular": false,
-  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657). Power cycles use the PDU's native OFF/ON function so the cycle can complete even when Homebridge or the network is one of the outlets being rebooted.",
-  "footerDisplay": "SNMPv1 communities and the Classic8 HTTP Basic login are not encrypted on the wire. Keep the PDU and Homebridge on a trusted LAN/VLAN and do not expose the management interfaces to the internet.",
+  "singular": true,
+  "headerDisplay": "",
+  "footerDisplay": "",
   "schema": {
     "type": "object",
-    "required": ["name", "host"],
+    "required": [
+      "name",
+      "host"
+    ],
     "properties": {
       "name": {
         "title": "Platform Name",
@@ -35,7 +38,9 @@
         "type": "string",
         "description": "Must have write access. If blank, the read community is used.",
         "default": "public",
-        "x-schema-form": { "type": "password" }
+        "x-schema-form": {
+          "type": "password"
+        }
       },
       "webUsername": {
         "title": "Classic8 Web Username",
@@ -47,7 +52,9 @@
         "title": "Classic8 Web Password",
         "type": "string",
         "description": "Required for Power Cycle controls. This is the password used to log in to the Classic8 web interface.",
-        "x-schema-form": { "type": "password" }
+        "x-schema-form": {
+          "type": "password"
+        }
       },
       "webPort": {
         "title": "Classic8 Web Port",
@@ -133,7 +140,9 @@
         "type": "array",
         "items": {
           "type": "object",
-          "required": ["number"],
+          "required": [
+            "number"
+          ],
           "properties": {
             "number": {
               "title": "Outlet Number",
@@ -161,5 +170,6 @@
         }
       }
     }
-  }
+  },
+  "customUi": true
 }
