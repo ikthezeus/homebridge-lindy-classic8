@@ -9,7 +9,7 @@ It exposes safe, momentary HomeKit power-cycle controls for each of the PDU's ei
 ## Features
 
 - Reads all eight outlet names directly from the Classic8.
-- Creates momentary HomeKit switches named **Power Cycle <outlet name>**.
+- Creates momentary HomeKit switches named **Power Cycle `<outlet name>`**.
 - Uses the Classic8's own native `OFF/ON` operation, so a cycle can finish even if the selected outlet powers Homebridge or part of the network path.
 - Defaults individual cycles to a **1 second** OFF/ON delay.
 - Adds a separate **Power Cycle Everything** control.
