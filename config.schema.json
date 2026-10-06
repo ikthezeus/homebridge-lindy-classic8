@@ -1,0 +1,119 @@
+{
+  "pluginAlias": "LindyClassic8",
+  "pluginType": "platform",
+  "singular": false,
+  "headerDisplay": "Control a Lindy IPower Switch Classic 8 (32657) over SNMP. By default each selected outlet appears as a momentary Restart switch that powers the outlet off, waits, then turns it back on.",
+  "footerDisplay": "SNMPv1 communities are sent in clear text. Keep the Classic8 and Homebridge on a trusted LAN/VLAN and do not expose UDP/161 to the internet.",
+  "schema": {
+    "type": "object",
+    "required": ["name", "host"],
+    "properties": {
+      "name": {
+        "title": "Platform Name",
+        "type": "string",
+        "default": "Lindy Classic8"
+      },
+      "host": {
+        "title": "Classic8 IP Address / Hostname",
+        "type": "string",
+        "placeholder": "192.168.1.50"
+      },
+      "port": {
+        "title": "SNMP Port",
+        "type": "integer",
+        "default": 161,
+        "minimum": 1,
+        "maximum": 65535
+      },
+      "readCommunity": {
+        "title": "SNMP Read Community",
+        "type": "string",
+        "default": "public"
+      },
+      "writeCommunity": {
+        "title": "SNMP Write Community",
+        "type": "string",
+        "description": "Must have write access. If blank, the read community is used.",
+        "x-schema-form": { "type": "password" }
+      },
+      "cycleDelaySeconds": {
+        "title": "Power Cycle Off Time (seconds)",
+        "type": "number",
+        "default": 5,
+        "minimum": 0.5,
+        "maximum": 300
+      },
+      "cyclePrefix": {
+        "title": "Restart Switch Prefix",
+        "type": "string",
+        "default": "Restart",
+        "description": "For example, an outlet named Router becomes Restart Router."
+      },
+      "exposeCycleSwitches": {
+        "title": "Expose Restart Switches",
+        "type": "boolean",
+        "default": true
+      },
+      "exposeOutletSwitches": {
+        "title": "Also Expose Permanent On/Off Switches",
+        "type": "boolean",
+        "default": false,
+        "description": "Disabled by default to reduce the chance of accidentally leaving an outlet powered off."
+      },
+      "pollIntervalSeconds": {
+        "title": "Status Poll Interval (seconds)",
+        "type": "integer",
+        "default": 15,
+        "minimum": 5,
+        "maximum": 3600
+      },
+      "timeout": {
+        "title": "SNMP Timeout (milliseconds)",
+        "type": "integer",
+        "default": 3000,
+        "minimum": 500,
+        "maximum": 30000
+      },
+      "retries": {
+        "title": "SNMP Retries",
+        "type": "integer",
+        "default": 1,
+        "minimum": 0,
+        "maximum": 5
+      },
+      "outlets": {
+        "title": "Outlet Selection / Name Overrides",
+        "description": "Leave empty to expose all eight outlets and read their names directly from the Classic8. If entries are added, only those outlets are exposed.",
+        "type": "array",
+        "items": {
+          "type": "object",
+          "required": ["number"],
+          "properties": {
+            "number": {
+              "title": "Outlet Number",
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 8
+            },
+            "name": {
+              "title": "HomeKit Name Override",
+              "type": "string",
+              "description": "Leave blank to use the name stored in the Classic8."
+            },
+            "enabled": {
+              "title": "Enabled",
+              "type": "boolean",
+              "default": true
+            },
+            "cycleDelaySeconds": {
+              "title": "Override Power Cycle Off Time (seconds)",
+              "type": "number",
+              "minimum": 0.5,
+              "maximum": 300
+            }
+          }
+        }
+      }
+    }
+  }
+}
