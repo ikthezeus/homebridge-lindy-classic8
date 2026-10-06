@@ -1,4 +1,4 @@
-stages:
+﻿stages:
   - test
 
 .node-test:
@@ -12,10 +12,6 @@ stages:
     - npm test
     - npm pack --dry-run
 
-node-20:
-  extends: .node-test
-  image: node:20-bookworm-slim
-
 node-22:
   extends: .node-test
   image: node:22-bookworm-slim
@@ -23,3 +19,7 @@ node-22:
 node-24:
   extends: .node-test
   image: node:24-bookworm-slim
+
+node-26:
+  extends: .node-test
+  image: node:26-bookworm-slim

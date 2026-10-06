@@ -4,6 +4,12 @@ All notable changes to this project are documented here.
 
 > The public Git repository was initialised after 0.1.8. Versions 0.1.0 through 0.1.8 are reconstructed from their development source snapshots; local network example values were sanitised for public publication.
 
+## [Unreleased]
+
+- Align the CI matrix with the current Homebridge-supported Node.js LTS releases: Node.js 22, 24 and 26.
+- Explicitly declare compatibility with Homebridge 1.8+ and Homebridge 2.x.
+- Raise the minimum supported Node.js version to Node.js 22.12.0.
+
 ## [0.1.8] - 2026-10-06
 
 - Set the HomeKit Accessory Information `Name` characteristic to the power-cycle action name so Apple Home proposes names such as `Power Cycle Hue Bridge` during child-bridge pairing.
