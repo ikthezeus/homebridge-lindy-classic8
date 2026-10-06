@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.1.8
+
+- Set the HomeKit Accessory Information `Name` characteristic to the power-cycle action name so Apple Home proposes names such as `Power Cycle Hue Bridge` during child-bridge pairing.
+- Keep the Accessory Information name synchronised when outlet names or overrides change.
+- Apply the same explicit Accessory Information naming to `Power Cycle Everything`.
+
+
 ## 0.1.7
 
 - Use `Power Cycle <outlet name>` as the HomeKit accessory display name when cycle controls are enabled, including existing cached accessories.
