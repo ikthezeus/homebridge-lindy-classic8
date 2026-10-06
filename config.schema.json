@@ -136,7 +136,7 @@
       },
       "outlets": {
         "title": "Outlet Selection / Name Overrides",
-        "description": "Leave empty to expose all eight outlets and read their names directly from the Classic8. If entries are added, only those outlets are exposed individually. Power Cycle Everything still controls all eight physical outlets.",
+        "description": "Leave empty to expose all eight outlets and read their names directly from the Classic8. Entries act as per-outlet overrides; outlets without an entry remain exposed. Set Enabled to false on an outlet entry to hide that outlet's individual control. Power Cycle Everything still controls all eight physical outlets.",
         "type": "array",
         "items": {
           "type": "object",

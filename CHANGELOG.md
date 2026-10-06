@@ -6,6 +6,11 @@ All notable changes to this project are documented here.
 
 ## [Unreleased]
 
+- Catch unexpected asynchronous startup failures and log them instead of allowing an unhandled promise rejection.
+- Correct the settings description for per-outlet overrides so it matches the plugin's actual behaviour.
+- Add regression coverage for unconfigured and failed startup paths.
+- Enable GitHub private vulnerability reporting and update the security policy.
+
 - Add the public GitHub mirror and GitHub Issues/Release metadata required for the Homebridge ecosystem.
 - Add GitHub Actions validation on Node.js 22, 24 and 26.
 
