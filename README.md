@@ -40,7 +40,7 @@ The Classic8 uses the DigiPower enterprise tree (`1.3.6.1.4.1.17420`). This plug
 - outlet states: `1.3.6.1.4.1.17420.1.2.9.1.13.0`
 - outlet names: `1.3.6.1.4.1.17420.1.2.9.1.14.<1-8>.0`
 
-The plugin first uses a targeted SNMP payload where `5` means "leave this outlet unchanged". It verifies the resulting state and automatically falls back to a serialised read-modify-write operation for older firmware if required.
+The plugin uses a serialised read-modify-write operation: it reads the current eight-outlet state, changes only the requested outlet, writes the complete state string back, and verifies the result. This matches the control method validated on a Lindy 32657.
 
 ## Before installing
 
@@ -82,12 +82,12 @@ This exposes all eight outlets using the names stored in the Classic8 and create
   "name": "Lindy Classic8",
   "host": "192.168.1.50",
   "readCommunity": "public",
-  "writeCommunity": "private",
-  "cycleDelaySeconds": 5
+  "writeCommunity": "public",
+  "cycleDelaySeconds": 10
 }
 ```
 
-If your read and write community are the same, `writeCommunity` can be omitted.
+If your read and write community are the same, `writeCommunity` can be omitted. The plugin then uses the read community for writes as well.
 
 ### Only expose selected outlets
 
@@ -99,8 +99,8 @@ When an `outlets` list is supplied, only those outlets are exposed:
   "name": "Rack PDU",
   "host": "192.168.1.50",
   "readCommunity": "public",
-  "writeCommunity": "private",
-  "cycleDelaySeconds": 5,
+  "writeCommunity": "public",
+  "cycleDelaySeconds": 10,
   "outlets": [
     { "number": 1 },
     { "number": 2, "name": "Fibre ONT", "cycleDelaySeconds": 10 },
