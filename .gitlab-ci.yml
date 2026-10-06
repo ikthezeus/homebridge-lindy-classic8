@@ -1,0 +1,25 @@
+stages:
+  - test
+
+.node-test:
+  stage: test
+  before_script:
+    - node --version
+    - npm --version
+    - npm install --ignore-scripts
+  script:
+    - npm run check
+    - npm test
+    - npm pack --dry-run
+
+node-20:
+  extends: .node-test
+  image: node:20-bookworm-slim
+
+node-22:
+  extends: .node-test
+  image: node:22-bookworm-slim
+
+node-24:
+  extends: .node-test
+  image: node:24-bookworm-slim

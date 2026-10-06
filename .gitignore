@@ -1,3 +1,10 @@
 node_modules/
 *.tgz
+*.zip
+coverage/
+.env
+.env.*
 .DS_Store
+Thumbs.db
+.vscode/
+.idea/

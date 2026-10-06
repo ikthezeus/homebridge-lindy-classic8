@@ -40,5 +40,13 @@
   },
   "author": {
     "name": "ikthezeus"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://gitlab.com/homebridge4/homebridge-lindy-classic8.git"
+  },
+  "homepage": "https://gitlab.com/homebridge4/homebridge-lindy-classic8#readme",
+  "bugs": {
+    "url": "https://gitlab.com/homebridge4/homebridge-lindy-classic8/-/issues"
   }
 }
